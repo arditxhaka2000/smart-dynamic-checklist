@@ -28,6 +28,63 @@ function createEmptyItem(): ChecklistItem {
   }
 }
 
+function sanitizeChecklistItems(raw: unknown[]): { items: ChecklistItem[]; messages: string[] } {
+  const messages: string[] = []
+  const seen = new Set<string>()
+
+  const items: ChecklistItem[] = raw
+    .map((entry, index) => {
+      if (!entry || typeof entry !== "object") {
+        messages.push(`Skipped entry ${index}: not an object`)
+        return null
+      }
+
+      const candidateId = typeof (entry as any).id === "string" && (entry as any).id.trim()
+      let id = candidateId || crypto.randomUUID()
+      if (seen.has(id)) {
+        const newId = `${id}-${crypto.randomUUID().slice(0, 8)}`
+        messages.push(`Duplicate id "${id}" at index ${index} replaced with "${newId}"`)
+        id = newId
+      }
+      seen.add(id)
+
+      const rawTitle = typeof (entry as any).title === "string" ? (entry as any).title.trim() : ""
+      const title = rawTitle || "Untitled step"
+      const description = typeof (entry as any).description === "string" ? (entry as any).description : undefined
+
+      const rawDependsOn = (entry as any).dependsOn
+      const dependsOn = Array.isArray(rawDependsOn)
+        ? Array.from(
+            new Set(
+              rawDependsOn
+                .filter((d: any) => typeof d === "string")
+                .map((d: string) => d.trim())
+                .filter(Boolean)
+                .filter(dep => dep !== id)
+            )
+          )
+        : []
+      if (rawDependsOn && !Array.isArray(rawDependsOn)) {
+        messages.push(`Entry "${title}" had invalid dependsOn; reset to []`)
+      }
+
+      const rawCreatedAt = typeof (entry as any).createdAt === "string" ? (entry as any).createdAt : ""
+      const createdAt = Number.isNaN(Date.parse(rawCreatedAt)) ? new Date().toISOString() : rawCreatedAt
+
+      return {
+        id,
+        title,
+        description,
+        dependsOn,
+        aiGenerated: Boolean((entry as any).aiGenerated),
+        createdAt
+      } satisfies ChecklistItem
+    })
+    .filter(Boolean) as ChecklistItem[]
+
+  return { items, messages }
+}
+
 function SortableItem({ item, onChangeTitle, onChangeDescription, allItems, onChangeDependencies }: {
   item: ChecklistItem
   allItems: ChecklistItem[]
@@ -123,6 +180,7 @@ export default function HomePage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [exportJson, setExportJson] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [importNotice, setImportNotice] = useState<string | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -142,7 +200,11 @@ export default function HomePage() {
     const rawRunner = window.localStorage.getItem(RUNNER_KEY)
     if (raw) {
       try {
-        setItems(JSON.parse(raw))
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) {
+          const { items: cleaned } = sanitizeChecklistItems(parsed)
+          setItems(cleaned)
+        }
       } catch {
         // ignore
       }
@@ -254,10 +316,18 @@ export default function HomePage() {
     try {
       const parsed: ChecklistItem[] = JSON.parse(exportJson)
       if (!Array.isArray(parsed)) throw new Error("Invalid JSON format")
-      setItems(parsed)
+      const { items: cleaned, messages } = sanitizeChecklistItems(parsed)
+      setItems(cleaned)
+      setRunnerState({})
       setError(null)
+      setImportNotice(
+        messages.length
+          ? `Import succeeded with adjustments: ${messages.join("; ")}`
+          : "Import succeeded."
+      )
     } catch (e: any) {
       setError("Import failed: " + (e.message ?? "Invalid JSON"))
+      setImportNotice(null)
     }
   }
 
@@ -517,6 +587,11 @@ export default function HomePage() {
             {error && (
               <p className="pt-2 text-xs text-rose-500">
                 {error}
+              </p>
+            )}
+            {importNotice && (
+              <p className="pt-2 text-xs text-emerald-500">
+                {importNotice}
               </p>
             )}
           </CardContent>

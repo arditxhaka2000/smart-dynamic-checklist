@@ -127,6 +127,9 @@ Checklist templates can be shared and reused.
 
 This enables versioning, reuse, and future backend integration.
 
+Imported checklists are sanitized on load to normalize IDs, dependencies, and missing fields, preventing malformed JSON from crashing the app.
+
+
 ------------------------------------------------------------------------
 
 ### 5. Analytics Panel
