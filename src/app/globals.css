@@ -3,20 +3,73 @@
 @tailwind utilities;
 
 :root {
+  color-scheme: light;
+  --bg: #f6f8fb;
+  --bg-muted: #edf2ff;
+  --bg-gradient: radial-gradient(circle at 20% 0%, #e2e8ff 0, #f6f8fb 52%, #eef2ff 100%);
+  --card: #ffffffcc;
+  --card-soft: #f4f7fb;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --surface-hover: rgba(15, 23, 42, 0.05);
+  --text: #0f172a;
+  --text-muted: #1f2937;
+  --text-dim: #475569;
+  --accent: #06b6d4;
+  --accent-strong: #0891b2;
+  --accent-contrast: #f8fafc;
+  --accent-rgb: 6, 182, 212;
+  --accent-soft: rgba(var(--accent-rgb), 0.12);
+  --accent-soft-border: rgba(var(--accent-rgb), 0.35);
+  --card-shadow: rgba(15, 23, 42, 0.12);
+  --pill-bg: #e0f2fe;
+  --pill-border: #bae6fd;
+  --input-bg: #ffffff;
+  --input-border: #e2e8f0;
+  --scrollbar: #cbd5e1;
+  --progress-track: #e2e8f0;
+}
+
+[data-theme="dark"] {
   color-scheme: dark;
+  --bg: #020617;
+  --bg-muted: #0b1224;
+  --bg-gradient: radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%);
+  --card: #0b1224cc;
+  --card-soft: #0f172a;
+  --border: #1f2933;
+  --border-strong: #1f2937;
+  --surface-hover: rgba(255, 255, 255, 0.04);
+  --text: #e2e8f0;
+  --text-muted: #cbd5e1;
+  --text-dim: #94a3b8;
+  --accent: #06b6d4;
+  --accent-strong: #0891b2;
+  --accent-contrast: #041016;
+  --accent-rgb: 6, 182, 212;
+  --accent-soft: rgba(var(--accent-rgb), 0.16);
+  --accent-soft-border: rgba(var(--accent-rgb), 0.4);
+  --card-shadow: rgba(0, 0, 0, 0.55);
+  --pill-bg: rgba(6, 182, 212, 0.12);
+  --pill-border: rgba(6, 182, 212, 0.4);
+  --input-bg: #0b1224;
+  --input-border: #1f2937;
+  --scrollbar: #1f2933;
+  --progress-track: #0f172a;
 }
 
 body {
-  @apply bg-slate-950 text-slate-100;
-  background: radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%);
+  background: var(--bg-gradient);
+  color: var(--text);
   min-height: 100vh;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  transition: background 240ms ease, color 240ms ease;
 }
 
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f2933;
+  background: var(--scrollbar);
   border-radius: 999px;
 }

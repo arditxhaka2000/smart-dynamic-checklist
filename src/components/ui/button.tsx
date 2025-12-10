@@ -3,14 +3,18 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60 shadow-sm",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg)] disabled:pointer-events-none disabled:opacity-60 shadow-sm",
   {
     variants: {
       variant: {
-        default: "bg-primary-600 text-white hover:bg-primary-500",
-        outline: "border border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-100",
-        ghost: "hover:bg-slate-900/60 text-slate-100",
-        subtle: "bg-slate-900 text-slate-100 hover:bg-slate-800"
+        default:
+          "bg-[color:var(--accent)] text-[color:var(--accent-contrast)] hover:bg-[color:var(--accent-strong)] shadow-[0_10px_30px_-12px_rgba(var(--accent-rgb),0.55)]",
+        outline:
+          "border border-[color:var(--border-strong)] bg-[color:var(--card-soft)] hover:bg-[color:var(--surface-hover)] text-[color:var(--text)]",
+        ghost:
+          "hover:bg-[color:var(--surface-hover)] text-[color:var(--text)]",
+        subtle:
+          "bg-[color:var(--card-soft)] text-[color:var(--text)] hover:bg-[color:var(--surface-hover)]"
       },
       size: {
         default: "h-9 px-4 py-2",
