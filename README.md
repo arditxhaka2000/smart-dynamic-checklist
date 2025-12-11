@@ -1,217 +1,361 @@
 # Smart Dynamic Checklist with AI Suggestions
 
-This project implements the **Smart Dynamic Checklist with AI
-Suggestions** take-home assignment using **Next.js, TypeScript,
-Tailwind, shadcn-style UI primitives, dnd-kit, and Cypress**.
+A clean, intuitive checklist builder for operations and onboarding teams, powered by Google Gemini AI.
 
-It is written and structured as if joining the team as a **senior
-frontend engineer**, with focus on:
+---
 
--   Predictable, testable state architecture\
--   Human-in-the-loop AI usage (Gemini)\
--   Clear separation of concerns (Builder vs Runner)\
--   UI patterns that can scale beyond a demo\
--   Domain-aware UX for accounting / ERP onboarding
+## Live Demo
 
-------------------------------------------------------------------------
+**https://smart-dynamic-checklist.vercel.app/**
 
-## Live Demo (Vercel)
+The live demo is fully functional. No installation needed. Bring your own Gemini API key to test AI generation.
 
-The project is deployed on **Vercel** and can be accessed here:
+---
 
- **https://smart-dynamic-checklist.vercel.app/**
+## What This Does
 
-The live demo allows reviewers to: - Explore Builder and Runner modes -
-Test dependency logic and progress tracking - Toggle dark/light theme -
-Generate checklist steps using their own Gemini API key
+This app helps teams create and manage dynamic checklists with dependencies. Think customer onboarding workflows where certain steps must be completed before others can begin.
 
-No setup is required to explore the UI.
+You can build checklists manually or let AI generate them from a description. Then run through them in execution mode, where steps unlock automatically as their prerequisites are completed.
 
-------------------------------------------------------------------------
+**Two Modes:**
+- **Builder Mode** - Create and edit your checklist structure
+- **Runner Mode** - Execute the checklist with automatic dependency tracking
+
+---
 
 ## Tech Stack
 
--   **Next.js 14** (App Router, TypeScript)
--   **React 18**
--   **Tailwind CSS**
--   **shadcn-style UI primitives** implemented locally (`Button`,
-    `Input`, `Textarea`, `Card`)
--   **dnd-kit** for accessible drag-and-drop sorting
--   **Cypress** for basic end-to-end tests
--   **Google Gemini API** (`gemini-2.5-flash`) via the official REST API
--   **LocalStorage** for autosave (builder + runner state)
--   **CSS variables + `data-theme`** for dark / light mode
+- Next.js 14 with App Router and TypeScript
+- React 18
+- Tailwind CSS
+- shadcn-style UI components (Button, Input, Textarea, Card)
+- dnd-kit for drag-and-drop reordering
+- Google Gemini API (gemini-2.0-flash-exp)
+- LocalStorage for autosave
+- CSS variables for theming
 
-------------------------------------------------------------------------
+---
 
-## High-Level Concept
+## Key Features
 
-The app is designed for **ops, accounting, and ERP implementation
-teams** onboarding new customers and needing checklists that:
+### Smart Dependencies
+Steps unlock automatically when their requirements are met. Perfect for workflows where order matters - like setting up a chart of accounts before creating invoices.
 
--   Vary by customer type\
--   Are easy to tweak and reuse\
--   Encode real-world dependencies\
--   Can be accelerated using AI without giving up human control
+### AI-Powered Generation
+Describe your workflow in plain English and Gemini creates a structured checklist. You stay in control. AI just speeds up the initial draft.
 
-Two modes are intentionally separated:
+### Drag and Drop Reordering
+Move steps around effortlessly. Dependencies stay intact and update automatically.
 
--   **Builder Mode** → defines checklist structure\
--   **Runner Mode** → tracks execution state
+### Export and Import
+Save checklists as JSON files. Share them with your team, version control them, or reuse them across projects. Import handles malformed data gracefully.
 
-This mirrors real-world onboarding and workflow systems.
+### Progress Tracking
+See what's done, what's available next, and what's still locked. Clear visual feedback throughout.
 
-------------------------------------------------------------------------
+### Inline Editing
+Edit titles and descriptions directly. No modal dialogs. Just click and type.
 
-## Core Features
+### Dark and Light Themes
+System preference detection with manual toggle. Theme preference persists across sessions.
 
-### 1. Checklist Builder
+---
+
+## Recent Improvements (v2)
+
+After initial client feedback ("Functionality works - UX not intuitive - UI feels cluttered"), we made significant improvements:
+
+### UX Enhancements
+
+**Better Mode Switching**
+The Builder/Runner toggle is now more prominent with clear visual distinction. Active mode uses accent color background with contrasting text. Icons help differentiate at a glance.
+
+**Auto-Scroll Behavior**
+- Adding a new step in Builder scrolls to it automatically and focuses the input
+- In Runner mode, completing a step that unlocks new items scrolls to show them
+- Newly unlocked items get a subtle highlight ring so you know what just became available
+
+**Completion Celebration**
+When you finish all steps in Runner mode, you get a completion message and the option to reset progress. Provides closure and clear next steps.
+
+**Progressive Disclosure**
+- Dependencies are collapsed by default and expand on demand
+- AI generation panel is hidden until needed
+- Import panel is separate from export
+- Less visual noise when you're not using those features
+
+**Confirmation Dialogs**
+- Switching from Runner to Builder when you have progress asks for confirmation
+- Import warns you before replacing an existing checklist
+- Reset progress requires confirmation
+- Prevents accidental data loss
+
+### UI Refinements
+
+**Cleaner Layout**
+- Removed analytics sidebar that added clutter
+- Removed design notes card
+- Action buttons consolidated into a single row
+- More breathing room between elements
+- Larger, clearer empty states with actionable guidance
+
+**Better Visual Hierarchy**
+- Completed items in Runner mode are faded instead of bright accent color
+- Active mode tab stands out clearly
+- Step counter shows total items at a glance
+- Dependencies show lock icon and count when relevant
+
+**Improved Panels**
+- Export now downloads the file immediately (no panel to close)
+- Import has better error handling with helpful messages
+- AI generation panel has close button and tips
+- All panels can be dismissed easily
+
+**Mobile Responsive**
+- Smaller padding on mobile devices
+- Responsive text sizes
+- Better touch targets
+- Layout adapts to screen size
+
+### Error Handling
+
+**Robust Import Validation**
+- Checks for empty input
+- Validates JSON syntax with helpful error messages
+- Ensures data is an array of items
+- Filters out invalid entries while keeping valid ones
+- Shows warnings if some items were skipped during import
+- Red border on textarea when errors occur
+
+**Better AI Generation Feedback**
+- Loading spinner during generation
+- Disable button when API key or prompt is missing
+- Clear error messages for API failures
+- Helpful placeholder text with examples
+
+**Toast Notifications**
+- Non-intrusive success messages
+- Download confirmation for exports
+- Import success with item count
+- Auto-dismiss after 3 seconds
+
+---
+
+## How It Works
+
+### Builder Mode
 
 In Builder Mode you can:
 
--   Add checklist steps
--   Edit titles and descriptions inline
--   Reorder steps via drag-and-drop
--   Set dependencies using toggleable pills
--   Identify AI-generated steps
+- Add checklist steps manually or via AI
+- Edit titles and descriptions inline
+- Reorder steps by dragging the handle on the left
+- Set dependencies by expanding the dependency section and toggling step pills
+- Delete individual steps
+- Export the entire checklist as JSON
+- Import a checklist from JSON
 
-Checklist structure is autosaved to:
+The checklist structure autosaves to LocalStorage as `smart-checklist-items-v1`.
 
--   `smart-checklist-items-v1`
+### Runner Mode
 
-------------------------------------------------------------------------
+Runner Mode lets you:
 
-### 2. Runner Mode
+- Mark steps as completed with checkboxes
+- See only steps whose dependencies are satisfied
+- Track overall progress with a visual progress bar
+- Complete all visible steps at once (bulk action)
+- Reset progress without modifying the checklist structure
 
-Runner Mode allows you to:
+Runner progress is stored separately in LocalStorage as `smart-checklist-runner-v1`.
 
--   Mark steps as completed
--   See only steps whose dependencies are satisfied
--   Reset progress without modifying the checklist structure
+**Visibility Rule:**
+A step becomes visible only when all its dependencies are completed. This ensures proper workflow sequencing.
 
-Visibility rule:
+### AI Task Generation
 
-> A step becomes visible only when all its dependencies are completed.
+The AI generation feature uses Google Gemini to create checklists from natural language descriptions.
 
-Runner progress state is stored separately:
+**How it works:**
 
--   `smart-checklist-runner-v1`
+1. Click "AI Generate"
+2. Enter your Gemini API key (get one at ai.google.dev)
+3. Describe your workflow in the text area
+4. Click "Generate Checklist"
+5. Gemini returns 8-12 proposed steps
+6. Steps are cleaned, validated, and added to your checklist
+7. You can then edit, reorder, or delete any of them
 
-------------------------------------------------------------------------
+The API key is never stored. It's only held in memory during your session. Dependencies are never auto-generated - you set those manually to ensure they're correct.
 
-### 3. AI Task Generation (Gemini)
+### Export and Import
 
-The **Generate Tasks** feature provides AI-assisted checklist creation.
+**Export:**
+Click "Export" and a JSON file downloads immediately with today's date in the filename. The file contains your complete checklist structure.
 
-**Flow:**
+**Import:**
+Click "Import", paste JSON, and click "Import Checklist". If you already have items, you'll get a confirmation prompt. The import process validates and sanitizes the data, handling missing fields gracefully.
 
-1.  Paste a Gemini API key into the UI (never persisted)
-2.  Enter or adjust the prompt
-3.  Click **Generate tasks**
-4.  AI-generated suggestions are cleaned, deduplicated, and appended to
-    the checklist
+---
 
-AI improves speed and reduces omissions while keeping full human
-control.\
-Dependencies are **never auto-generated**.
+## Data Model
 
-------------------------------------------------------------------------
-
-### 4. Export / Import via JSON
-
-Checklist templates can be shared and reused.
-
--   **Export JSON** serializes the checklist to a readable JSON format
--   **Import from JSON** overwrites the current checklist from pasted
-    JSON
-
-This enables versioning, reuse, and future backend integration.
-
-Imported checklists are sanitized on load to normalize IDs, dependencies, and missing fields, preventing malformed JSON from crashing the app.
-
-
-------------------------------------------------------------------------
-
-### 5. Analytics Panel
-
-A lightweight analytics panel shows:
-
--   Total number of steps
--   Completed steps
--   Hidden steps (blocked by dependencies)
--   Overall progress
-
-This mirrors what an implementation lead needs to monitor onboarding
-status.
-
-------------------------------------------------------------------------
-
-### 6. Dark / Light Theme Support
-
-The app supports dark and light themes.
-
--   Theme is stored in `localStorage` (`smart-checklist-theme-v1`)
--   Synced via `document.documentElement.dataset.theme`
--   CSS variables in `globals.css` define theme tokens
--   Components consume tokens instead of hard-coded colors
-
-This keeps the UI consistent, accessible, and easy to extend.
-
-------------------------------------------------------------------------
-
-## Data Model & Dependency Logic
-
-``` ts
+```typescript
 export type ChecklistItem = {
-  id: string
-  title: string
-  description?: string
-  dependsOn: string[]
-  aiGenerated?: boolean
-  createdAt: string
+  id: string                 // UUID
+  title: string              // Step name
+  description?: string       // Optional details
+  dependsOn: string[]        // Array of item IDs that must be completed first
+  aiGenerated?: boolean      // Flag for AI-generated items
+  createdAt: string          // ISO timestamp
 }
 
-export type RunnerState = Record<string, boolean>
+export type RunnerState = Record<string, boolean>  // item ID -> completed
 ```
 
-Dependency logic:
+### Dependency Logic
 
-``` ts
+```typescript
 const visibleRunnerItems = items.filter(item =>
   item.dependsOn.every(depId => runnerState[depId])
 )
 ```
 
-This AND-based model covers real onboarding constraints while keeping
-logic predictable.
+Simple AND-based logic. All dependencies must be met for a step to be visible.
 
-------------------------------------------------------------------------
+---
 
 ## Gemini API Integration
 
--   Endpoint: `/api/generate`
--   Model: `gemini-2.5-flash`
--   Real API calls (no mocks)
--   API key is provided at runtime via UI and never committed
+- Model: `gemini-2.0-flash-exp`
+- Called directly from the frontend (no backend proxy)
+- API key provided by user at runtime
+- Returns JSON array of checklist items
+- Response is validated and sanitized before use
 
-**Note**: The app targets the `gemini-2.5-flash` model.  
-If a provided API key does not have access to this model (due to region or billing),
-the AI generation request will fail with a clear API error.
-------------------------------------------------------------------------
+**Note:** If your API key doesn't have access to this model (due to region or billing), generation will fail with an API error message.
 
-## Running the Project Locally
+---
 
-``` bash
+## Running Locally
+
+```bash
 npm install
 npm run dev
 ```
 
-Open: `http://localhost:3000`
+Open `http://localhost:3000`
 
-------------------------------------------------------------------------
+---
+
+## Design Decisions
+
+### Why Two Separate Modes?
+
+Builder and Runner are intentionally separated because they serve different purposes:
+
+- **Builder** is for structure. You're designing the workflow.
+- **Runner** is for execution. You're following the workflow.
+
+Keeping them separate prevents accidental edits during execution and makes the mental model clearer. It mirrors how real workflow tools work.
+
+### Why Manual Dependencies?
+
+We could auto-suggest dependencies using AI, but we don't. Here's why:
+
+Dependencies encode critical business logic. Getting them wrong breaks workflows. Humans are better at understanding these relationships, especially for domain-specific processes like accounting onboarding.
+
+AI can suggest steps, but you wire them together.
+
+### Why LocalStorage Instead of a Database?
+
+This is a demo focused on frontend architecture and UX patterns. LocalStorage keeps it simple and lets you test immediately without signup or backend setup.
+
+For production use, the same patterns would work with a proper backend. The state management architecture is designed to be backend-agnostic.
+
+### Why JSON Export Instead of Other Formats?
+
+JSON is:
+- Human-readable for quick checks
+- Version-control friendly (git diff works)
+- Easy to validate and transform
+- Standard format for API integration
+- Simple to import/export programmatically
+
+For teams wanting other formats, the JSON can be transformed server-side.
+
+---
+
+## What This Project Demonstrates
+
+**Clean State Architecture**
+- Separation of builder state and runner state
+- Predictable, testable dependency resolution
+- Proper React patterns (hooks, memoization, effects)
+
+**Thoughtful UX**
+- Progressive disclosure (show complexity only when needed)
+- Auto-scroll to relevant content
+- Clear visual feedback for all actions
+- Helpful error messages
+- Empty states that guide next actions
+
+**Responsible AI Integration**
+- AI assists but doesn't take over
+- User stays in control
+- Clear labeling of AI-generated content
+- Graceful handling of API failures
+
+**Production-Ready Patterns**
+- Comprehensive error handling
+- Input validation and sanitization
+- Confirmation dialogs for destructive actions
+- Autosave with no "save" button needed
+- Theme persistence
+
+**Accessibility Basics**
+- Semantic HTML
+- Keyboard-navigable drag handles
+- Focus management
+- ARIA labels where needed
+- Color contrast meets WCAG guidelines
+
+---
+
+## Future Enhancements
+
+If this were being built for production, here are logical next steps:
+
+**Backend Integration**
+- User accounts and authentication
+- Cloud storage for checklists
+- Team sharing and permissions
+- Real-time collaboration
+
+**Advanced Features**
+- Subtasks within steps
+- Assignees and due dates
+- Comments and attachments
+- Notification system
+- Template library
+
+**Better AI**
+- Suggest dependencies based on step content
+- Auto-categorize steps
+- Detect duplicate steps across checklists
+- Learn from completed checklists to improve suggestions
+
+**Analytics**
+- Time tracking per step
+- Bottleneck detection
+- Completion rate trends
+- Team performance metrics
+
+---
 
 ## Summary
 
-This project demonstrates **senior-level frontend architecture**,
-responsible AI integration, and domain-aware UX for accounting and ERP
-onboarding workflows.
+This project shows senior-level frontend work: clean architecture, attention to UX details, responsible AI integration, and production-ready error handling. It's built to be maintainable, testable, and ready to scale beyond a demo.
+
+The improvements from v1 to v2 demonstrate how feedback-driven iteration can transform "functionality works but UX not intuitive" into a polished, professional tool that people actually enjoy using.
